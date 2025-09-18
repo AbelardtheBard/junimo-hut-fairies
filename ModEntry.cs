@@ -41,130 +41,15 @@ namespace FarmCompanionRoamerMod
         internal static ModConfig Config = null!;
 
         /// <summary>
-        /// Gets the appropriate style index based on the current configuration and hut state
+        /// Gets the appropriate style index based on the current configuration (1-8 only)
         /// </summary>
-        private static int GetStyleIndex(Vector2 hutPos, int fairyIndex, bool hasAnyFairyBoxes, StardewValley.Objects.Trinkets.Trinket? trinket = null)
+        private static int GetStyleIndex()
         {
-            if (Config?.FairyStyleID == null)
-                return 1;
-
-            // Handle backward compatibility for numeric config (0 = sequential)
-            if (Config.FairyStyleID is int intValue)
-            {
-                if (intValue == 0)
-                    return GetSequentialStyle(fairyIndex);
-                return Math.Max(1, Math.Min(intValue, 8));
-            }
-
-            // Handle string-based config
-            if (Config.FairyStyleID is string stringValue)
-            {
-                // Handle backward compatibility for "0" string
-                if (stringValue == "0")
-                    return GetSequentialStyle(fairyIndex);
-
-                // Handle numeric strings 1-8
-                if (int.TryParse(stringValue, out int parsedInt) && parsedInt >= 1 && parsedInt <= 8)
-                    return parsedInt;
-
-                switch (stringValue.ToLower())
-                {
-                    case "random":
-                        return GetRandomStyle(trinket);
-
-                    case "sequential":
-                        return GetSequentialStyle(fairyIndex);
-
-                    case "shuffled":
-                    case "arraybag": // Backward compatibility
-                        return GetShuffledStyle(hutPos, fairyIndex, hasAnyFairyBoxes, trinket);
-
-                    default:
-                        return 1; // fallback
-                }
-            }
-
-            return 1; // fallback
-        }
-
-        private static int GetRandomStyle(StardewValley.Objects.Trinkets.Trinket? trinket)
-        {
-            if (trinket != null)
-            {
-                // Use persistent random style stored in trinket
-                if (!trinket.modData.TryGetValue("FairyBoxStyleIndex", out string styleStr) || !int.TryParse(styleStr, out int styleIndex))
-                {
-                    styleIndex = new System.Random(Guid.NewGuid().GetHashCode()).Next(1, 9);
-                    trinket.modData["FairyBoxStyleIndex"] = styleIndex.ToString();
-                }
-                return Math.Max(1, Math.Min(styleIndex, 8));
-            }
-            else
-            {
-                // For non-trinket fairies, use a new random each time
-                return new System.Random(Guid.NewGuid().GetHashCode()).Next(1, 9);
-            }
-        }
-
-        private static int GetSequentialStyle(int fairyIndex)
-        {
-            // Cycle through styles 1-8
-            return (fairyIndex % 8) + 1;
-        }
-
-        private static int GetShuffledStyle(Vector2 hutPos, int fairyIndex, bool hasAnyFairyBoxes, StardewValley.Objects.Trinkets.Trinket? trinket = null)
-        {
-            // If no fairy boxes, clear the hut's shuffled state
-            if (!hasAnyFairyBoxes)
-            {
-                var farmLocation = Game1.getFarm();
-                string bagStateKey = $"fcr.shuffled.{hutPos.X}.{hutPos.Y}";
-                farmLocation.modData.Remove(bagStateKey);
-                return GetSequentialStyle(fairyIndex); // Fallback to sequential
-            }
-
-            // For Shuffled, we need to track which styles have been used for this hut
-            // Store the state in the farm's modData to persist across sessions
-            var farm = Game1.getFarm();
-            string stateKey = $"fcr.shuffled.{hutPos.X}.{hutPos.Y}";
+            // Simple 1-8 style selection with fallback to style 1
+            if (Config?.FairyStyleID is int styleId && styleId >= 1 && styleId <= 8)
+                return styleId;
             
-            List<int> usedStyles = new List<int>();
-            List<int> availableStyles = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
-
-            // Load existing used styles from farm modData
-            if (farm.modData.TryGetValue(stateKey, out string usedStylesJson) && !string.IsNullOrEmpty(usedStylesJson))
-            {
-                try
-                {
-                    usedStyles = Newtonsoft.Json.JsonConvert.DeserializeObject<List<int>>(usedStylesJson) ?? new List<int>();
-                }
-                catch
-                {
-                    usedStyles = new List<int>();
-                }
-            }
-
-            // Remove used styles from available styles
-            availableStyles.RemoveAll(style => usedStyles.Contains(style));
-
-            // If all styles have been used, reset the cycle
-            if (availableStyles.Count == 0)
-            {
-                usedStyles.Clear();
-                availableStyles = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
-            }
-
-            // Pick a random style from available styles
-            var random = new System.Random(Guid.NewGuid().GetHashCode());
-            int chosenStyle = availableStyles[random.Next(availableStyles.Count)];
-
-            // Mark this style as used
-            usedStyles.Add(chosenStyle);
-
-            // Save the updated used styles back to farm modData
-            farm.modData[stateKey] = Newtonsoft.Json.JsonConvert.SerializeObject(usedStyles);
-
-            return chosenStyle;
+            return 1; // Default fallback
         }
         
         public override void Entry(IModHelper helper)
@@ -229,36 +114,15 @@ namespace FarmCompanionRoamerMod
                 text: () => "Fairy Companion Settings"
             );
 
-            // FairyStyleID - special handling for object type (int or string)
-            configMenu.AddTextOption(
+            // FairyStyleID - simple numeric selection 1-8
+            configMenu.AddNumberOption(
                 mod: this.ModManifest,
                 name: () => "Fairy Style",
-                tooltip: () => "Choose fairy appearance: specific styles (1-8), Sequential (cycles through all), Random (random each spawn), or Shuffled (shuffled order, no duplicates)",
-                getValue: () => Config.FairyStyleID?.ToString() ?? "Shuffled",
-                setValue: value => {
-                    if (value == "random" || value == "sequential" || value == "Shuffled")
-                        Config.FairyStyleID = value;
-                    else if (int.TryParse(value, out int intValue) && intValue >= 1 && intValue <= 8)
-                        Config.FairyStyleID = intValue;
-                    else
-                        Config.FairyStyleID = "Shuffled";
-                },
-                allowedValues: new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "random", "sequential", "Shuffled" },
-                formatAllowedValue: value => value switch
-                {
-                    "1" => "Style 1",
-                    "2" => "Style 2", 
-                    "3" => "Style 3",
-                    "4" => "Style 4",
-                    "5" => "Style 5",
-                    "6" => "Style 6",
-                    "7" => "Style 7",
-                    "8" => "Style 8",
-                    "random" => "Random",
-                    "sequential" => "Sequential",
-                    "Shuffled" => "Shuffled",
-                    _ => value
-                }
+                tooltip: () => "Choose fairy appearance style (1-8). Each style has a different look and color.",
+                getValue: () => Config.FairyStyleID,
+                setValue: value => Config.FairyStyleID = value,
+                min: 1,
+                max: 8
             );
 
             configMenu.AddNumberOption(
@@ -968,7 +832,7 @@ namespace FarmCompanionRoamerMod
                     // Removed VerboseLogging check - always log debug info
                     Logger?.Log($"[FairyDebug] FairyBox modData for GUID={kvp.Key}: {Newtonsoft.Json.JsonConvert.SerializeObject(kvp.Value.modData)}", LogLevel.Debug);
                             var trinket = kvp.Value;
-                            int styleIndex = GetStyleIndex(hutPos, hutCompanions[hutPos].Count, fairyBoxTrinkets.Count > 0, trinket);
+                            int styleIndex = GetStyleIndex();
                             // Debug log for diagnosis - removed VerboseLogging check
                             Logger?.Log($"[FairyDebug] Spawning fairy: Config.FairyStyleID={config.FairyStyleID}, styleIndex={styleIndex}, FairyBoxGUID={kvp.Key}", LogLevel.Debug);
                             // Spawn at hut center
@@ -1029,7 +893,7 @@ namespace FarmCompanionRoamerMod
                 var trinket = fairyBoxTrinkets[i] as StardewValley.Objects.Trinkets.Trinket;
                 if (trinket != null)
                 {
-                    int styleIndex = GetStyleIndex(hutPos, i, fairyBoxCount > 0, trinket);
+                    int styleIndex = GetStyleIndex();
                     Monitor.Log($"  [DEBUG] Fairy Box Trinket {i + 1}: ItemId={trinket.ItemId}, generationSeed={trinket.generationSeed.Value}, DisplayName={trinket.DisplayName}", LogLevel.Info);
                     foreach (var kvp in trinket.modData.Pairs)
                         Monitor.Log($"    modData['{kvp.Key}'] = {kvp.Value}", LogLevel.Info);

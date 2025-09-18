@@ -2,7 +2,7 @@ namespace FarmCompanionRoamerMod
 {
     public class ModConfig
     {
-        public object FairyStyleID { get; set; } = "Shuffled"; // "Shuffled" (default), "sequential", "random", or 1-8 (specific styles)
+        public int FairyStyleID { get; set; } = 8; // Fairy style 1-8 (default: 8)
 
         /// <summary>
         /// If true, enables the Enhanced Crop Fairy feature: Fairy Boxes in Junimo Huts increase the Crop Fairy event chance (global cap +0.8%) and weight crop selection.

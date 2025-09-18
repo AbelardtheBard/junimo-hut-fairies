@@ -9,11 +9,7 @@ Features
 - Enhanced Crop Fairy Event:
     * Global Boost: Each Fairy Box in a Junimo Hut adds a configurable percentage to the nightly Crop Fairy event chance (default: +0.1% per box, max 8 boxes = +0.8% total). Use -1 for unlimited boxes.
     * Local Boost: When the Crop Fairy event triggers, each crop within 8 tiles of a Junimo Hut gets weight bonus per Fairy Box in that hut (default: +1 weight per box, up to 36 boxes max).
-- Advanced Fairy Styles: Choose from multiple appearance options:
-    * Specific Styles (1-8): Fixed fairy appearance
-    * Sequential: Cycles through all 8 styles in order
-    * Random: Random style for each new Fairy Box placement
-    * Shuffled (Default): Shuffled order with no duplicates until all styles used
+- Simple Fairy Styles: Choose from 8 different fairy appearance styles (1-8). Each has a unique look and color.
 - Global Configuration: All settings apply to every save file and can be changed via the in-game config menu (requires Generic Mod Config Menu).
 - Harmony Integration: Uses Harmony for compatibility with other mods.
 
@@ -28,7 +24,7 @@ Configuration
 **Config Options:**
 
 **Fairy Companion Settings:**
-- Fairy Style: Choose appearance style (1-8, sequential, random, or Shuffled)
+- Fairy Style: Choose appearance style (1-8). Each style has a unique look and color.
 - Fairy Spawn Cap: Maximum fairy companions per Junimo Hut (1-36, default: 8)
 
 **Enhanced Crop Fairy Settings:**
@@ -46,7 +42,7 @@ Configuration
 Open config.json in your mod folder with a text editor. Example:
 
 {
-  "FairyStyleID": "Shuffled",
+  "FairyStyleID": 1,
   "EnhancedCropFairy": true,
   "CropFairyChancePerBox": 0.125,
   "CropFairyMaxBoxes": 8,
@@ -56,11 +52,7 @@ Open config.json in your mod folder with a text editor. Example:
 }
 
 FairyStyleID options:
-- "Shuffled" (default): Shuffled order, no duplicates per cycle
-- "sequential": Cycles through styles 1-8 in order
-- "random": Random style each placement
-- 1-8: Specific fairy style number
-- 0: Legacy sequential (same as "sequential")
+- 1-8: Choose from 8 different fairy styles (each with unique look and color)
 
 CropFairyMaxBoxes options:
 - Positive number: Cap at that many boxes

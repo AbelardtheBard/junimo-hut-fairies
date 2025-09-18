@@ -1,3 +1,3 @@
-Config works! Need to test random setting. Any other last tweaks!
-
-TO DO: any last bug fixes, update readme. delete dead code
+COMPLETED: Simplified fairy style logic to only support styles 1-8.
+Removed complex sequential/random/shuffled modes and all persistence logic.
+Configuration now uses simple integer selection (1-8) for fairy styles.
