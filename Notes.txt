@@ -1,0 +1,3 @@
+Config works! Need to test random setting. Any other last tweaks!
+
+TO DO: any last bug fixes, update readme. delete dead code

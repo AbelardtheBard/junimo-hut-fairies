@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>JunimoHutFairies</AssemblyName>
+    <RootNamespace>JunimoHutFairies</RootNamespace>
+    <ModFolderName>JunimoHutFairies</ModFolderName>
+    <ModZipName>JunimoHutFairies</ModZipName>
+    <EnableModBuildConfig>true</EnableModBuildConfig>
+    <IgnoreModFilePatterns>\.xcf$, \.psd$, \.orig$, \.log$</IgnoreModFilePatterns>
+    <!-- Game and SMAPI folder for mod build config -->
+    <GamePath>C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
+    <!-- Suppress assembly resolution warnings -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3245;MSB3277;MSB3243</MSBuildWarningsAsMessages>
+    <!-- Extra safety settings -->
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
+    <PackageReference Include="Lib.Harmony" Version="2.3.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- Reference SMAPI and Stardew Valley assemblies for mod compilation -->
+    <Reference Include="StardewModdingAPI">
+      <HintPath>$(GamePath)\StardewModdingAPI.dll</HintPath>
+      <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="Stardew Valley">
+      <HintPath>$(GamePath)\Stardew Valley.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Copy README.txt to output directory on build -->
+  <Target Name="CopyReadme" AfterTargets="Build">
+    <Copy SourceFiles="README.txt" DestinationFolder="$(OutDir)" />
+  </Target>
+
+</Project>

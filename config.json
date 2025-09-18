@@ -1,0 +1,9 @@
+{
+  "FairyStyleID": "Shuffled",
+  "EnhancedCropFairy": true,
+  "CropFairyChancePerBox": 0.125,
+  "CropFairyMaxBoxes": 8,
+  "CropFairyWeightPerBox": 1.0,
+  "CropFairyMaxWeightBoxes": 36,
+  "FairySpawnCap": 8
+}
