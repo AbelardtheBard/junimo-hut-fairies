@@ -1,7 +1,7 @@
 {
   "Name": "Junimo Hut Fairies",
   "Author": "Abelard the Bard",
-  "Version": "1.1.2",
+  "Version": "1.1.4",
   "Description": "Magical fairy companions for Junimo Huts with enhanced Crop Fairy events and configurable styles.",
   "UniqueID": "AbelardTheBard.JunimoHutFairies",
   "EntryDll": "JunimoHutFairies.dll",

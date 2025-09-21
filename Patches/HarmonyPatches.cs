@@ -22,8 +22,8 @@ namespace FarmCompanionRoamerMod
         // Restore fairies after warp
         public static void Postfix()
         {
-            ModEntry.Logger?.Log("[Harmony] Wand.DoFunction Postfix: Restoring fairies after warp.", LogLevel.Trace);
-            FarmCompanionRoamerMod.ModEntry.Instance?.RestoreFairyState();
+            ModEntry.Logger?.Log("[Harmony] Wand.DoFunction Postfix: Re-scanning fairies after warp.", LogLevel.Trace);
+            FarmCompanionRoamerMod.ModEntry.Instance?.ScanAndSpawnFairies();
         }
     }
 }

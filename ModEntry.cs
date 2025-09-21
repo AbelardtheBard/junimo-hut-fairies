@@ -624,8 +624,8 @@ namespace FarmCompanionRoamerMod
                 pendingFarmRespawnTicks--;
                 if (pendingFarmRespawnTicks == 0 && Game1.currentLocation is Farm)
                 {
-                    Monitor.Log("[FairyPersistence] Delayed respawn after warp to farm.", LogLevel.Trace);
-                    RestoreFairyState();
+                    Monitor.Log("[FairyPersistence] Delayed fairy sync after warp to farm.", LogLevel.Trace);
+                    ScanAndSpawnFairies(); // Use ScanAndSpawnFairies instead of RestoreFairyState for better persistence
                 }
             }
             // Update companion movement every tick
