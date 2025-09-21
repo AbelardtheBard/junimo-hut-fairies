@@ -107,22 +107,11 @@ public class TrinketCompanion
             }
         }
         
-        /// <summary>Get the appropriate light color based on fairy style</summary>
+        /// <summary>Get consistent glow light color for all fairies (emulating glow ring)</summary>
         private Color GetFairyLightColor()
         {
-            // Create different colored lights based on fairy style
-            return StyleIndex switch
-            {
-                1 => new Color(255, 220, 180, 120), // Warm white
-                2 => new Color(180, 255, 220, 120), // Cool mint
-                3 => new Color(255, 180, 220, 120), // Pink
-                4 => new Color(220, 180, 255, 120), // Purple
-                5 => new Color(180, 220, 255, 120), // Blue
-                6 => new Color(255, 255, 180, 120), // Golden
-                7 => new Color(220, 255, 180, 120), // Green
-                8 => new Color(255, 200, 200, 120), // Soft red
-                _ => new Color(255, 240, 200, 120)  // Default warm white
-            };
+            // Use same color as glow ring for consistency: soft blue glow
+            return new Color(0, 30, 150, 255); // Same as glow ring "517"
         }
 
         // Pick a new target tile within 10 tiles of home in each direction
