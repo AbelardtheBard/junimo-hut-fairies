@@ -29,6 +29,14 @@ namespace FarmCompanionRoamerMod
         // Removed unused lastWarpType field
         private void ClearAllFairies()
         {
+            // Clean up light sources for all fairies before clearing
+            foreach (var hutFairies in hutCompanions.Values)
+            {
+                foreach (var fairy in hutFairies.OfType<Models.TrinketCompanion>())
+                {
+                    fairy.RemoveLightSource();
+                }
+            }
             hutCompanions.Clear();
         }
 
@@ -843,7 +851,16 @@ namespace FarmCompanionRoamerMod
                         }
                     }
                     // Remove fairies whose FairyBoxGUID is no longer present
-                    hutCompanions[hutPos] = hutCompanions[hutPos].OfType<Models.TrinketCompanion>().Where(f => boxDict.ContainsKey(f.FairyBoxGUID)).ToList();
+                    var fairiesBeforeRemoval = hutCompanions[hutPos].OfType<Models.TrinketCompanion>().ToList();
+                    var fairiesAfterRemoval = fairiesBeforeRemoval.Where(f => boxDict.ContainsKey(f.FairyBoxGUID)).ToList();
+                    
+                    // Clean up light sources for removed fairies
+                    foreach (var removedFairy in fairiesBeforeRemoval.Except(fairiesAfterRemoval))
+                    {
+                        removedFairy.RemoveLightSource();
+                    }
+                    
+                    hutCompanions[hutPos] = fairiesAfterRemoval;
                     if (hutCompanions[hutPos].Count > 0) hutsWithFairies++;
                 }
             }

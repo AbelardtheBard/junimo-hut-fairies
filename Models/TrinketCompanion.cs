@@ -9,6 +9,11 @@ public class TrinketCompanion
 {
     // Unique identifier for incremental fairy management
     public string FairyBoxGUID { get; set; } = string.Empty;
+    
+    // Light source for fairy glow (emulating glow ring behavior)
+    private LightSource? FairyLight { get; set; } = null;
+    private string? lightSourceId = null;
+    
     private int animationFrame = 0;
     private float animationTimer = 0f;
     private const float AnimationInterval = 0.12f; // seconds per frame
@@ -50,6 +55,74 @@ public class TrinketCompanion
             flutterAmplitude = 2f + (float)rng.NextDouble() * 2f; // 2-4 px
             idleTimer = 0f;
             changeTargetTimer = 8.0f + (float)rng.NextDouble() * 2.0f; // 8-10s
+            
+            // Create fairy light source (always glowing like glow ring)
+            CreateLightSource();
+        }
+
+        /// <summary>Create fairy light source following glow ring pattern</summary>
+        public void CreateLightSource()
+        {
+            if (FairyLight != null) return;
+            
+            var farm = Game1.getLocationFromName("Farm") as Farm;
+            if (farm == null) return;
+            
+            // Generate unique light ID for this fairy
+            lightSourceId = $"fairy_{FairyBoxGUID}_{StyleIndex}_{Game1.random.Next(1000, 9999)}";
+            
+            // Create light following glow ring pattern
+            Vector2 lightPosition = Position * 64f + new Vector2(32f, 32f); // Center of fairy
+            Color lightColor = GetFairyLightColor();
+            float lightRadius = 3f; // Smaller than glow ring for subtlety
+            
+            FairyLight = new LightSource(lightSourceId, LightSource.lantern, lightPosition, lightRadius, lightColor, LightSource.LightContext.None, 0L);
+            
+            // Add to farm's shared lights (emulating ring behavior)
+            farm.sharedLights[lightSourceId] = FairyLight;
+        }
+        
+        /// <summary>Remove fairy light source</summary>
+        public void RemoveLightSource()
+        {
+            if (lightSourceId == null) return;
+            
+            var farm = Game1.getLocationFromName("Farm") as Farm;
+            if (farm != null)
+            {
+                farm.sharedLights.Remove(lightSourceId);
+            }
+            
+            FairyLight = null;
+            lightSourceId = null;
+        }
+        
+        /// <summary>Update light position as fairy moves (emulating how glow ring follows player)</summary>
+        public void UpdateLightPosition()
+        {
+            if (FairyLight != null)
+            {
+                // Update light position to follow fairy (like glow ring follows player)
+                FairyLight.position.Value = Position * 64f + new Vector2(32f, 32f);
+            }
+        }
+        
+        /// <summary>Get the appropriate light color based on fairy style</summary>
+        private Color GetFairyLightColor()
+        {
+            // Create different colored lights based on fairy style
+            return StyleIndex switch
+            {
+                1 => new Color(255, 220, 180, 120), // Warm white
+                2 => new Color(180, 255, 220, 120), // Cool mint
+                3 => new Color(255, 180, 220, 120), // Pink
+                4 => new Color(220, 180, 255, 120), // Purple
+                5 => new Color(180, 220, 255, 120), // Blue
+                6 => new Color(255, 255, 180, 120), // Golden
+                7 => new Color(220, 255, 180, 120), // Green
+                8 => new Color(255, 200, 200, 120), // Soft red
+                _ => new Color(255, 240, 200, 120)  // Default warm white
+            };
         }
 
         // Pick a new target tile within 10 tiles of home in each direction
@@ -193,6 +266,9 @@ public class TrinketCompanion
                 Vector2 inward = homeTile - Position;
                 Position += inward * 0.02f;
             }
+            
+            // Update fairy light position to follow fairy movement (like glow ring follows player)
+            UpdateLightPosition();
         }
 
         public void Draw(SpriteBatch b)
