@@ -71,12 +71,16 @@ public class TrinketCompanion
             // Generate unique light ID for this fairy
             lightSourceId = $"fairy_{FairyBoxGUID}_{StyleIndex}_{Game1.random.Next(1000, 9999)}";
             
-            // Create light following glow ring pattern
-            Vector2 lightPosition = Position * 64f + new Vector2(32f, 32f); // Center of fairy
+            // Create light at fairy sprite position (not ground position)
+            Vector2 groundPos = Position * 64f + new Vector2(32f, 64f);
+            Vector2 fairyPos = groundPos;
+            fairyPos.Y += -200f + MathF.Sin(bobPhase) * bobAmplitude; // Match fairy sprite position
+            fairyPos.X += MathF.Sin(flutterPhase) * flutterAmplitude;
+            
             Color lightColor = GetFairyLightColor();
             float lightRadius = 3f; // Smaller than glow ring for subtlety
             
-            FairyLight = new LightSource(lightSourceId, LightSource.lantern, lightPosition, lightRadius, lightColor, LightSource.LightContext.None, 0L);
+            FairyLight = new LightSource(lightSourceId, LightSource.lantern, fairyPos, lightRadius, lightColor, LightSource.LightContext.None, 0L);
             
             // Add to farm's shared lights (emulating ring behavior)
             farm.sharedLights[lightSourceId] = FairyLight;
@@ -102,8 +106,14 @@ public class TrinketCompanion
         {
             if (FairyLight != null)
             {
-                // Update light position to follow fairy (like glow ring follows player)
-                FairyLight.position.Value = Position * 64f + new Vector2(32f, 32f);
+                // Match the exact positioning used in Draw() method for the fairy sprite
+                Vector2 groundPos = Position * 64f + new Vector2(32f, 64f);
+                Vector2 fairyPos = groundPos;
+                fairyPos.Y += -200f + MathF.Sin(bobPhase) * bobAmplitude; // Same calculation as fairy sprite
+                fairyPos.X += MathF.Sin(flutterPhase) * flutterAmplitude;
+                
+                // Position light at the fairy sprite location
+                FairyLight.position.Value = fairyPos;
             }
         }
         
